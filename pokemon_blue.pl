@@ -19,8 +19,14 @@ path(frontyard,w,downstairs).
 path(frontyard,e,crossing).
 path(crossing,w,frontyard).
 
-path(tall_grass,s,crossing).
-path(crossing,n,tall_grass).
+path(fighting_area,s,crossing).
+path(crossing,n,fighting_area).
+
+path(tall_grass,w,fighting_area).
+path(fighting_area,e,tall_grass).
+
+path(arena,e,fighting_area).
+path(fighting_area,w,arena).
 
 path(pokecenter,n,crossing).
 path(crossing,s,pokecenter).
@@ -116,7 +122,8 @@ notice_objects_at(_).
 
 /* This rule tells how to die. */
 
-die :- i_am_at(pokecenter).
+die :-
+        !, finish.
 
 
 /* Under UNIX, the "halt." command quits Prolog but does not
@@ -163,17 +170,17 @@ describe(my_room) :-
 describe(downstairs) :-
         write('You are downstairs'),nl,
         write('Go to frontyard - s.'),nl,
-        write('Go upstairs(your room) - u'),nl.
+        write('Go upstairs(your room) - u.'),nl.
 
 describe(frontyard) :-
         write('You are in the frontyard'),nl,
         write('Go back inside(downstairs) - w'),nl,
-        write('Go to the crossing - e'),nl.
+        write('Go to the crossing - e.'),nl.
 
 describe(crossing) :-
         write('You are at the crossing.'), nl,
         write('There are many paths to choose'), nl,
-        write('Tall grass - n.'), nl,
+        write('Fighting area - n.'), nl,
         write('Home - w.'), nl,
         write('Oaks lab - s.'), nl,
         write('Pokecenter - e.'), nl.
@@ -184,13 +191,21 @@ describe(oaks_lab) :-
 
 describe(tall_grass) :-
         write('You are at the tall grass area'),nl,
-        write('Here,you might be able to find some wild pokemons')
-        write('leave tall grass area - s.'),nl.
+        write('Here,you might be able to find some wild pokemons'),nl,
+        write('leave tall grass area - w.'),nl.
+
+describe(arena) :-
+        write('You are at the arena'),nl,
+        write('Here you can combat other trainers'),nl,
+        write('leave arena - e.'),nl.
+
+describe(fighting_area) :-
+        write('You are at the fighting area'),nl,
+        write('Here, you are free to choose if you want to fight wild pokemons in the tall grass area, or combat other trainers in the arena'),nl,
+        write('Go to tall grass area - e.'),nl,
+        write('Go to arena -  w.'),nl,
+        write('Leave fighting area (crossing) - s.'),nl.
 
 describe(oaks_lab) :-
         write('You are at the pokecenter'),nl,
         write('leave pokecenter - w.'),nl.
-
-------------------------------------------------------------
-
-----------------------------------------------------------
