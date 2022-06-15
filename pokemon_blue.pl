@@ -4,7 +4,7 @@
 :- dynamic i_am_at/1, at/2, holding/1.
 :- retractall(at(_, _)), retractall(i_am_at(_)), retractall(alive(_)).
 
-i_am_at(home).
+i_am_at(my_room).
 /* Facts about the map connections */
 
 /*Inside house*/
@@ -20,7 +20,7 @@ path(frontyard,e,crossing).
 path(crossing,w,frontyard).
 
 path(tall_grass,s,crossing).
-path(crossing,n,tall_grass) :- write('OAK: This is unsafe! Pokemon live in tall grass! You need your own pokemon for your protection.').
+path(crossing,n,tall_grass).
 
 path(pokecenter,n,crossing).
 path(crossing,s,pokecenter).
@@ -116,8 +116,7 @@ notice_objects_at(_).
 
 /* This rule tells how to die. */
 
-die :-
-        finish.
+die :- i_am_at(pokecenter).
 
 
 /* Under UNIX, the "halt." command quits Prolog but does not
@@ -157,12 +156,19 @@ start :-
 /* These rules describe the various rooms.  Depending on
    circumstances, a room may have more than one description. */
 
-describe(home) :-
-        write('You are at home'),nl.
+describe(my_room) :-
+        write('You are at home'),nl,
+        write('go downstairs - d.'),nl.
 
+describe(downstairs) :-
+        write('You are downstairs'),nl,
+        write('Go to frontyard - s.'),nl,
+        write('Go upstairs(your room) - u'),nl.
 
-describe(oaks_lab) :-
-        write('You are at oaks lab'),nl.
+describe(frontyard) :-
+        write('You are in the frontyard'),nl,
+        write('Go back inside(downstairs) - w'),nl,
+        write('Go to the crossing - e'),nl.
 
 describe(crossing) :-
         write('You are at the crossing.'), nl,
@@ -172,3 +178,19 @@ describe(crossing) :-
         write('Oaks lab - s.'), nl,
         write('Pokecenter - e.'), nl.
 
+describe(oaks_lab) :-
+        write('You are at oaks lab'),nl,
+        write('leave oaks lab - n.'),nl.
+
+describe(tall_grass) :-
+        write('You are at the tall grass area'),nl,
+        write('Here,you might be able to find some wild pokemons')
+        write('leave tall grass area - s.'),nl.
+
+describe(oaks_lab) :-
+        write('You are at the pokecenter'),nl,
+        write('leave pokecenter - w.'),nl.
+
+------------------------------------------------------------
+
+----------------------------------------------------------
