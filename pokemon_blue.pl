@@ -123,7 +123,10 @@ notice_objects_at(_).
 /* This rule tells how to die. */
 
 die :-
-        !, finish.
+        nl,
+        write('Your pokemon died'),
+        nl,
+        assert(i_am_at(pokecenter)).
 
 
 /* Under UNIX, the "halt." command quits Prolog but does not
