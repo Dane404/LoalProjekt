@@ -1,7 +1,7 @@
 
 /*-------------------------------------------------------------------------------*/
 /* <Pokemon>, by <Danijel Pejic, Florian Ster, Christoph Moosbrugger>. */
-:- dynamic i_am_at/1, at/2, holding/1.
+:- dynamic i_am_at/1, at/2, holding/1, has_pokemon/0.
 :- retractall(at(_, _)), retractall(i_am_at(_)), retractall(alive(_)).
 
 i_am_at(my_room).
@@ -35,7 +35,7 @@ path(oaks_lab,w,crossing).
 path(crossing,e,oaks_lab).
 /*Placement of items*/
 
-at(thing, someplace).
+
 /* These rules describe how to pick up an object. */
 
 take(X) :-
@@ -88,12 +88,28 @@ d :- go(d).
 
 /* This rule tells how to move in a given direction. */
 
+
+go(Direction) :-
+        i_am_at(crossing),
+        path(crossing, Direction, tall_grass),
+        has_pokemon,
+        retract(i_am_at(_)),
+        assert(i_am_at(_)),
+        !, look;
+        i_am_at(crossing),
+        path(crossing, Direction, fighting_area),
+        write('No Pokemon teleport to oaks lab'),nl,
+        retract(i_am_at(_)),
+        assert(i_am_at(oaks_lab)),
+        look.
+
 go(Direction) :-
         i_am_at(Here),
         path(Here, Direction, There),
         retract(i_am_at(Here)),
         assert(i_am_at(There)),
         !, look.
+
 
 go(_) :-
         write('You can''t go that way.').
@@ -126,7 +142,9 @@ die :-
         nl,
         write('Your pokemon died'),
         nl,
-        assert(i_am_at(pokecenter)).
+        retract(i_am_at(_)),
+        assert(i_am_at(pokecenter)),
+        look.
 
 
 /* Under UNIX, the "halt." command quits Prolog but does not
@@ -168,17 +186,17 @@ start :-
 
 describe(my_room) :-
         write('You are at home'),nl,
-        write('go downstairs - d.'),nl.
+        write('go downstairs - d.'),nl,!.
 
 describe(downstairs) :-
         write('You are downstairs'),nl,
         write('Go to frontyard - s.'),nl,
-        write('Go upstairs(your room) - u.'),nl.
+        write('Go upstairs(your room) - u.'),nl,!.
 
 describe(frontyard) :-
         write('You are in the frontyard'),nl,
         write('Go back inside(downstairs) - w'),nl,
-        write('Go to the crossing - e.'),nl.
+        write('Go to the crossing - e.'),nl,!.
 
 describe(crossing) :-
         write('You are at the crossing.'), nl,
@@ -186,29 +204,35 @@ describe(crossing) :-
         write('Fighting area - n.'), nl,
         write('Home - w.'), nl,
         write('Oaks lab - s.'), nl,
-        write('Pokecenter - e.'), nl.
+        write('Pokecenter - e.'), nl,!.
 
 describe(oaks_lab) :-
         write('You are at oaks lab'),nl,
-        write('leave oaks lab - n.'),nl.
+        write('leave oaks lab - n.'),nl,!.
 
 describe(tall_grass) :-
         write('You are at the tall grass area'),nl,
         write('Here,you might be able to find some wild pokemons'),nl,
-        write('leave tall grass area - w.'),nl.
+        write('leave tall grass area - w.'),nl,!.
 
 describe(arena) :-
         write('You are at the arena'),nl,
         write('Here you can combat other trainers'),nl,
-        write('leave arena - e.'),nl.
+        write('leave arena - e.'),nl,!.
 
 describe(fighting_area) :-
         write('You are at the fighting area'),nl,
         write('Here, you are free to choose if you want to fight wild pokemons in the tall grass area, or combat other trainers in the arena'),nl,
         write('Go to tall grass area - e.'),nl,
         write('Go to arena -  w.'),nl,
-        write('Leave fighting area (crossing) - s.'),nl.
+        write('Leave fighting area (crossing) - s.'),nl,!.
 
 describe(oaks_lab) :-
-        write('You are at the pokecenter'),nl,
-        write('leave pokecenter - w.'),nl.
+        write('You are at oaks lab'),nl,
+        write('leave oaks lab - n.'),nl,!.
+
+describe(pokecenter) :-
+        write('You are at the pokecenter.'),nl,
+        write('Leave Pokecenter - w.'),nl,!.
+
+describe(_) :- write('This room is not defined yet.').
