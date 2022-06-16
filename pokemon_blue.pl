@@ -203,12 +203,12 @@ describe(crossing) :-
         write('There are many paths to choose'), nl,
         write('Fighting area - n.'), nl,
         write('Home - w.'), nl,
-        write('Oaks lab - s.'), nl,
-        write('Pokecenter - e.'), nl,!.
+        write('Oaks lab - e.'), nl,
+        write('Pokecenter - s.'), nl,!.
 
 describe(oaks_lab) :-
         write('You are at oaks lab'),nl,
-        write('leave oaks lab - n.'),nl,!.
+        write('leave oaks lab - w.'),nl,!.
 
 describe(tall_grass) :-
         write('You are at the tall grass area'),nl,
@@ -227,12 +227,9 @@ describe(fighting_area) :-
         write('Go to arena -  w.'),nl,
         write('Leave fighting area (crossing) - s.'),nl,!.
 
-describe(oaks_lab) :-
-        write('You are at oaks lab'),nl,
-        write('leave oaks lab - n.'),nl,!.
 
 describe(pokecenter) :-
         write('You are at the pokecenter.'),nl,
-        write('Leave Pokecenter - w.'),nl,!.
+        write('Leave Pokecenter - n.'),nl,!.
 
 describe(_) :- write('This room is not defined yet.').
