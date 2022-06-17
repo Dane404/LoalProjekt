@@ -98,7 +98,7 @@ go(Direction) :-
         !, look;
         i_am_at(crossing),
         path(crossing, Direction, fighting_area),
-        write('No Pokemon teleport to oaks lab'),nl,
+        write('No Pokemon teleport to oaks lab'),nl,!,
         retract(i_am_at(_)),
         assert(i_am_at(oaks_lab)),
         look.
