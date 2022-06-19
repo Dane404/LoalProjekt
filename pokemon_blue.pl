@@ -1,7 +1,7 @@
 
 /*-------------------------------------------------------------------------------*/
 /* <Pokemon>, by <Danijel Pejic, Florian Ster, Christoph Moosbrugger>. */
-:- dynamic i_am_at/1, at/2, holding/1, has_pokemon/0.
+:- dynamic i_am_at/1, at/2, holding/1, has_pokemon/0, available_pokemon/1.
 :- retractall(at(_, _)), retractall(i_am_at(_)), retractall(alive(_)).
 
 i_am_at(my_room).
@@ -79,11 +79,17 @@ beats_type(fire,plant).
 beats_type(water,fire).
 beats_type(plant,water).
 
-beats(PokemonX,PokemonY) :-evolves(PokemonY,PokemonX);(not(evolves(PokemonX,PokemonY)),( has_type(PokemonX,TypeX),has_type(PokemonY,TypeY),beats_type(TypeX,TypeY))).
+beats(PokemonX,PokemonY) :-(evolves(PokemonY,PokemonX),!);(not(evolves(PokemonX,PokemonY)),( has_type(PokemonX,TypeX),has_type(PokemonY,TypeY),beats_type(TypeX,TypeY)),!).
 
-battle_pokemon(PokemonX,PokemonY):-(write_pokebattle_intro(PokemonX,PokemonY),beats(PokemonX,PokemonY),write(PokemonX),write(' won the battle and evolves!'));die.
-/* battle not finished yet*/
+battle_pokemon(PokemonX,PokemonY):-(write_pokebattle_intro(PokemonX,PokemonY),beats(PokemonX,PokemonY),write(PokemonX),write(' won the battle and evolves!'),!);die.
+
 write_pokebattle_intro(PokemonX,PokemonY):-write(PokemonX),write(' battles '), write(PokemonY),nl.
+
+/* Pokemon managment*/
+get_pokemon(Pokemon):- add_pokemon(Pokemon),retractall(has_pokemon),assert(has_pokemon),!.
+
+add_pokemon(Pokemon):- retractall(available_pokemon),assert(available_pokemon(Pokemon)).
+
 /*Placement of items*/
 
 
