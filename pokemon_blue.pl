@@ -1,13 +1,12 @@
 
 /*-------------------------------------------------------------------------------*/
 /* <Pokemon>, by <Danijel Pejic, Florian Ster, Christoph Moosbrugger>. */
-:- dynamic i_am_at/1, at/2, holding/1, has_pokemon/0, available_pokemon/1.
+:- dynamic i_am_at/1, at/2, holding/1, has_pokemon/0, available_pokemon/1, dead_pokemon/1.
 :- retractall(at(_, _)), retractall(i_am_at(_)), retractall(alive(_)).
 
 i_am_at(my_room).
 
 
-/* Facts about the map connections */
 
 
 /* Pokemon*/
@@ -32,6 +31,11 @@ directly_evolves(ivysaur,venusaur).
 
 evolves(PokemonX,PokemonY):- directly_evolves(PokemonX,PokemonY).
 evolves(PokemonX,PokemonZ) :- directly_evolves(PokemonX,PokemonY),evolves(PokemonY,PokemonZ).
+
+evolve(Pokemon) :- (directly_evolves(Pokemon,X),write(Pokemon),write(' evolves to '),write( X),retract(available_pokemon(Pokemon)),assert(available_pokemon(X)),!)
+;(write(Pokemon),write(' has no evolution')).
+
+
 
 has_type(charmander,fire).
 has_type(charmeleon,fire).
@@ -74,6 +78,7 @@ path(crossing,s,pokecenter).
 path(oaks_lab,w,crossing).
 path(crossing,e,oaks_lab).
 
+
 /*Battle */
 beats_type(fire,plant).
 beats_type(water,fire).
@@ -81,52 +86,28 @@ beats_type(plant,water).
 
 beats(PokemonX,PokemonY) :-(evolves(PokemonY,PokemonX),!);(not(evolves(PokemonX,PokemonY)),( has_type(PokemonX,TypeX),has_type(PokemonY,TypeY),beats_type(TypeX,TypeY)),!).
 
-battle_pokemon(PokemonX,PokemonY):-(write_pokebattle_intro(PokemonX,PokemonY),beats(PokemonX,PokemonY),write(PokemonX),write(' won the battle and evolves!'),!);die.
+start_battle(EnemyPokemon):- (available_pokemon(X),battle_pokemon(X,EnemyPokemon));die.
+
+battle_pokemon(PokemonX,PokemonY):-(write_pokebattle_intro(PokemonX,PokemonY),beats(PokemonX,PokemonY),write(PokemonX),write(' won the battle and tries to evolve!'),nl,evolve(PokemonX),!)
+;(write(PokemonX),write(' died!'),nl,kill_pokemon(PokemonX),false).
 
 write_pokebattle_intro(PokemonX,PokemonY):-write(PokemonX),write(' battles '), write(PokemonY),nl.
 
+
+
+
 /* Pokemon managment*/
+
 get_pokemon(Pokemon):- add_pokemon(Pokemon),retractall(has_pokemon),assert(has_pokemon),!.
 
-add_pokemon(Pokemon):- retractall(available_pokemon),assert(available_pokemon(Pokemon)).
+add_pokemon(Pokemon):- available_pokemon(Pokemon);(assert(available_pokemon(Pokemon)),nl,write('You cought a '),write(Pokemon)),nl.
 
-/*Placement of items*/
+kill_pokemon(Pokemon):-retract(available_pokemon(Pokemon)),assert(dead_pokemon(Pokemon)) .
 
-
-/* These rules describe how to pick up an object. */
-
-take(X) :-
-        holding(X),
-        write('You''re already holding it!'),
-        !, nl.
-
-take(X) :-
-        i_am_at(Place),
-        at(X, Place),
-        retract(at(X, Place)),
-        assert(holding(X)),
-        write('OK.'),
-        !, nl.
-
-take(_) :-
-        write('I don''t see it here.'),
-        nl.
+restore_pokemon :- dead_pokemon(X),write_restore_message(X),retract(dead_pokemon(X)), assert(available_pokemon(X)),(restore_pokemon;true),!.
 
 
-/* These rules describe how to put down an object. */
-
-drop(X) :-
-        holding(X),
-        i_am_at(Place),
-        retract(holding(X)),
-        assert(at(X, Place)),
-        write('OK.'),
-        !, nl.
-
-drop(_) :-
-        write('You aren''t holding it!'),
-        nl.
-
+write_restore_message(Pokemon) :- write(Pokemon), write(' is being restored!'),nl.
 
 /* These rules define the direction letters as calls to go/1. */
 
@@ -154,11 +135,14 @@ go(Direction) :-
         assert(i_am_at(_)),
         !, look;
         i_am_at(crossing),
-        path(crossing, Direction, fighting_area),
+        path(crossing, Direction, fighting_area),((not(has_pokemon),
         write('No Pokemon teleport to oaks lab'),nl,!,
         retract(i_am_at(_)),
-        assert(i_am_at(oaks_lab)),
-        look.
+        assert(i_am_at(oaks_lab)),look);
+        (
+         retract(i_am_at(_)),
+         assert(i_am_at(fighting_area)),
+         nl,look,!)).
 
 go(Direction) :-
         i_am_at(Here),
@@ -177,28 +161,16 @@ go(_) :-
 look :-
         i_am_at(Place),
         describe(Place),
-        nl,
-        notice_objects_at(Place),
         nl.
 
 
-/* These rules set up a loop to mention all the objects
-   in your vicinity. */
-
-notice_objects_at(Place) :-
-        at(X, Place),
-        write('There is a '), write(X), write(' here.'), nl,
-        fail.
-
-notice_objects_at(_).
 
 
 /* This rule tells how to die. */
 
 die :-
         nl,
-        write('Your pokemon died'),
-        nl,
+        write('Your pokemons died'),nl,
         retract(i_am_at(_)),
         assert(i_am_at(pokecenter)),
         look.
@@ -224,8 +196,6 @@ instructions :-
         write('start.             -- to start the game.'), nl,
         write('n.  s.  e.  w.     -- to go in that direction.'), nl,
         write('u. d.              -- up and down'),nl,
-        write('take(Object).      -- to pick up an object.'), nl,
-        write('drop(Object).      -- to put down an object.'), nl,
         write('instructions.      -- to see this message again.'), nl,
         write('halt.              -- to end the game and quit.'), nl,
         nl.
@@ -265,11 +235,17 @@ describe(crossing) :-
 
 describe(oaks_lab) :-
         write('You are at oaks lab'),nl,
+        ((not(has_pokemon),write('Which pokemon do you want?'),nl,
+         write('charmander - c.'),nl,
+         write('bulbasaur - b.'),nl,
+         write('squirtle - sq.'),nl);true),
         write('leave oaks lab - w.'),nl,!.
 
+
+
 describe(tall_grass) :-
-        write('You are at the tall grass area'),nl,
-        write('Here,you might be able to find some wild pokemons'),nl,
+        nl,write('You are at the tall grass area'),nl,
+        write('Here,you might be able to find some wild pokemons'),nl,random_pokemon(X),start_battle(X),i_am_at(tall_grass),!,get_pokemon(X),nl,
         write('leave tall grass area - w.'),nl,!.
 
 describe(arena) :-
@@ -278,17 +254,35 @@ describe(arena) :-
         write('leave arena - e.'),nl,!.
 
 describe(fighting_area) :-
-        write('You are at the fighting area'),nl,
+        nl,write('You are at the fighting area'),nl,
         write('Here, you are free to choose if you want to fight wild pokemons in the tall grass area, or combat other trainers in the arena'),nl,
+        write('Battle random pokemon - fight.'),nl,
         write('Go to tall grass area - e.'),nl,
         write('Go to arena -  w.'),nl,
         write('Leave fighting area (crossing) - s.'),nl,!.
 
 
 describe(pokecenter) :-
-        write('You are at the pokecenter.'),nl,
+        nl,write('You are at the pokecenter.'),nl,(restore_pokemon,nl,
+        write('Your pokemons are restored!'),nl;true),nl,
         write('Leave Pokecenter - n.'),nl,!.
 
 
 
 describe(_) :- write('This room is not defined yet.').
+
+
+/* get pokemon in oaks lab*/
+c :- get_pokemon(charmander),nl,write('You chose charmander!'),nl,look.
+b :- get_pokemon(bulbasaur),nl,write('You chose bulbasaur!'),nl,look.
+sq :- get_pokemon(squirtle),nl,write('You chose squirtle!'),nl,look.
+
+battle_charmander :- start_battle(charmander).
+battle_squirtle :- start_battle(squirtle).
+battle_bulbasaur:- start_battle(bulbasaur).
+
+/*utilities*/
+pokemons(L) :- findall(X,is_pokemon(X),L).
+random_pokemon(X) :- pokemons(L),random_member(X,L),!.
+
+fight :-  random_pokemon(X),start_battle(X),(i_am_at(fighting_area),look;true),!.
