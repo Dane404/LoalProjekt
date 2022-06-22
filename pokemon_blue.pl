@@ -56,7 +56,7 @@ path(my_room,d,downstairs).
 path(downstairs,u,my_room).
 
 path(downstairs,s,frontyard).
-path(frontyard,w,downstairs).
+path(frontyard,n,downstairs).
 
 /*Outside*/
 
@@ -136,7 +136,9 @@ go(Direction) :-
         !, look;
         i_am_at(crossing),
         path(crossing, Direction, fighting_area),((not(has_pokemon),
-        write('No Pokemon teleport to oaks lab'),nl,!,
+        write('OAK: Hey! Wait! Dont go out! Its unsafe!'),nl,
+        write('Wild Pokémon live in tall grass! You need your own Pokémon for your protection.'),nl,
+        write('I know! Here, come with me!'),nl,!,
         retract(i_am_at(_)),
         assert(i_am_at(oaks_lab)),look);
         (
@@ -197,6 +199,7 @@ instructions :-
         write('n.  s.  e.  w.     -- to go in that direction.'), nl,
         write('u. d.              -- up and down'),nl,
         write('instructions.      -- to see this message again.'), nl,
+        write('map.      -- to see the map.'), nl,
         write('halt.              -- to end the game and quit.'), nl,
         nl.
 
@@ -207,6 +210,30 @@ start :-
         instructions,
         look.
 
+map :-
+        nl,
+        write('o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o'),nl,
+        write('o +------------+                                                          o'),nl,
+        write('o |            |                                                          o'),nl,
+        write('o |  upstairs  |          +------------+ +---------------+ +------------+ o'),nl,
+        write('o |            |          |            | |               | |            | o'),nl,
+        write('o +-----||-----+          | tall grass === fighting area ===   arena    | o'),nl,
+        write('o |            |          |            | |               | |            | o'),nl,
+        write('o | downstairs |          +-----||-----+ +------||-------+ +------------+ o'),nl,
+        write('o |            |                                ||                        o'),nl,
+        write('o +-----||-----+                          +-----||-----+ +------------+   o'),nl,
+        write('o |            |                          |            | |            |   o'),nl,
+        write('o | frontyard  ============================  crossing  ===  oaks lab  |   o'),nl,
+        write('o |            |                          |            | |            |   o'),nl,
+        write('o +------------+                          +-----||-----+ +------------+   o'),nl,
+        write('o                                               ||                        o'),nl,
+        write('o                                         +-----||-----+                  o'),nl,
+        write('o                                         |            |                  o'),nl,
+        write('o                                         | pokecemter |                  o'),nl,
+        write('o                                         |            |                  o'),nl,
+        write('o                                         +------------+                  o'),nl,
+        write('o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o o'),nl,
+        nl.
 
 /* These rules describe the various rooms.  Depending on
    circumstances, a room may have more than one description. */
@@ -222,7 +249,7 @@ describe(downstairs) :-
 
 describe(frontyard) :-
         write('You are in the frontyard'),nl,
-        write('Go back inside(downstairs) - w'),nl,
+        write('Go back inside(downstairs) - n'),nl,
         write('Go to the crossing - e.'),nl,!.
 
 describe(crossing) :-
