@@ -217,7 +217,7 @@ map :-
         write('o |            |                                                          o'),nl,
         write('o |  upstairs  |          +------------+ +---------------+ +------------+ o'),nl,
         write('o |            |          |            | |               | |            | o'),nl,
-        write('o +-----||-----+          | tall grass === fighting area ===   arena    | o'),nl,
+        write('o +-----||-----+          |    arena   === fighting area === tall grass | o'),nl,
         write('o |            |          |            | |               | |            | o'),nl,
         write('o | downstairs |          +-----||-----+ +------||-------+ +------------+ o'),nl,
         write('o |            |                                ||                        o'),nl,
