@@ -276,14 +276,15 @@ describe(tall_grass) :-
         write('leave tall grass area - w.'),nl,!.
 
 describe(arena) :-
+        nl,
         write('You are at the arena'),nl,
+        write('Battle random pokemon - fight.'),nl,
         write('Here you can combat other trainers'),nl,
         write('leave arena - e.'),nl,!.
 
 describe(fighting_area) :-
         nl,write('You are at the fighting area'),nl,
         write('Here, you are free to choose if you want to fight wild pokemons in the tall grass area, or combat other trainers in the arena'),nl,
-        write('Battle random pokemon - fight.'),nl,
         write('Go to tall grass area - e.'),nl,
         write('Go to arena -  w.'),nl,
         write('Leave fighting area (crossing) - s.'),nl,!.
@@ -300,9 +301,9 @@ describe(_) :- write('This room is not defined yet.').
 
 
 /* get pokemon in oaks lab*/
-c :- get_pokemon(charmander),nl,write('You chose charmander!'),nl,look.
-b :- get_pokemon(bulbasaur),nl,write('You chose bulbasaur!'),nl,look.
-sq :- get_pokemon(squirtle),nl,write('You chose squirtle!'),nl,look.
+c :- get_pokemon(charmander),nl,nl,look.
+b :- get_pokemon(bulbasaur),nl,nl,look.
+sq :- get_pokemon(squirtle),nl,nl,look.
 
 battle_charmander :- start_battle(charmander).
 battle_squirtle :- start_battle(squirtle).
